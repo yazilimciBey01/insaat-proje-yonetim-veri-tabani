@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MG İnşaat — Yönetici Paneli</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#111118; --card:#16161f; --card2:#1c1c28;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --orange:#F97316; --orange2:#fb923c; --green:#22c55e;
+  --blue:#3b82f6; --yellow:#eab308; --red:#ef4444;
+  --text:#f1f5f9; --muted:#64748b; --muted2:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+.sidebar-logo h2{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text);}
+.sidebar-logo h2 span{color:var(--orange);}
+.sidebar-logo p{font-size:11px;color:var(--muted);margin-top:2px;}
+.sidebar-user{margin:16px 12px;padding:12px 14px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:10px;}
+.sidebar-user .user-role{font-size:10px;color:var(--orange);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.sidebar-user .user-name{font-size:13px;font-weight:600;color:var(--text);margin-top:2px;}
+.sidebar-nav{flex:1;padding:8px 12px;overflow-y:auto;}
+.nav-section-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:12px 8px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted2);cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.nav-item.active{background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.2);color:var(--orange);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border);}
+.logout-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;}
+.logout-btn:hover{background:rgba(239,68,68,0.15);}
+
+/* ── MAIN ── */
+.main{margin-left:240px;flex:1;padding:32px;min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.badge-date{font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:8px;}
+
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* Stat kartları */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--border2);}
+.stat-icon{font-size:22px;margin-bottom:10px;}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* Tablo */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);gap:12px;}
+.card-header h3{font-size:15px;font-weight:700;}
+.card-header .header-right{display:flex;align-items:center;gap:12px;}
+.card-header span.count{font-size:12px;color:var(--muted);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--card2);}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+td{padding:13px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* Butonlar */
+.btn-primary{background:var(--orange);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary:hover{background:var(--orange2);transform:translateY(-1px);box-shadow:0 6px 18px rgba(249,115,22,0.3);}
+.btn-action{background:transparent;border:1px solid var(--border2);color:var(--muted2);padding:5px 10px;border-radius:6px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;margin-right:4px;}
+.btn-action:hover{border-color:var(--orange);color:var(--orange);}
+.btn-action.danger:hover{border-color:var(--red);color:var(--red);}
+.btn-action.success:hover{border-color:var(--green);color:var(--green);}
+
+/* Badge */
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.badge-devam{background:rgba(249,115,22,0.15);color:var(--orange2);border:1px solid rgba(249,115,22,0.3);}
+.badge-tamam{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+.badge-bekle{background:rgba(234,179,8,0.15);color:var(--yellow);border:1px solid rgba(234,179,8,0.3);}
+.badge-red  {background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+
+/* Progress bar */
+.tbl-progress{display:flex;align-items:center;gap:8px;}
+.tbl-bar{flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;min-width:80px;}
+.tbl-fill{height:100%;border-radius:4px;}
+.fill-o{background:linear-gradient(90deg,#f97316,#fb923c);}
+.fill-g{background:linear-gradient(90deg,#16a34a,#22c55e);}
+.fill-y{background:linear-gradient(90deg,#ca8a04,#eab308);}
+
+/* Proje kartları */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.project-card:hover{border-color:rgba(249,115,22,0.25);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.35);}
+.project-card:hover::before{opacity:1;}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.card-num{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--muted);}
+.status-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
+.status-devam{background:rgba(249,115,22,0.15);color:var(--orange2);border:1px solid rgba(249,115,22,0.3);}
+.status-tamamlandi{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+.status-beklemede{background:rgba(234,179,8,0.15);color:var(--yellow);border:1px solid rgba(234,179,8,0.3);}
+.project-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px;}
+.project-client{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.progress-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;margin-bottom:16px;}
+.progress-fill{height:100%;border-radius:5px;transition:width .8s ease;}
+.fill-orange{background:linear-gradient(90deg,#f97316,#fb923c);}
+.fill-green{background:linear-gradient(90deg,#16a34a,#22c55e);}
+.fill-yellow{background:linear-gradient(90deg,#ca8a04,#eab308);}
+.card-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.meta-col{background:var(--card2);border-radius:8px;padding:10px 12px;}
+.meta-label{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px;}
+.meta-val{font-size:13px;font-weight:700;}
+.card-actions{display:flex;gap:6px;padding-top:12px;border-top:1px solid var(--border);}
+
+/* Modal */
+#modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+#modal-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 32px 80px rgba(0,0,0,0.6);animation:modalIn .25s ease both;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#modal-close{position:absolute;top:16px;right:16px;background:var(--card2);border:1px solid var(--border);color:var(--muted2);width:32px;height:32px;border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+#modal-close:hover{background:rgba(239,68,68,0.15);color:#ef4444;border-color:rgba(239,68,68,0.3);}
+
+/* Form */
+.form-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.form-sub{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.form-row input,.form-row select,.form-row textarea{width:100%;background:var(--card2);border:1px solid var(--border2);color:var(--text);padding:11px 14px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;border-radius:10px;transition:border-color .2s;}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--orange);}
+.form-row textarea{resize:vertical;min-height:80px;font-family:'Outfit',sans-serif;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-actions{display:flex;gap:10px;margin-top:24px;}
+.form-actions button{flex:1;padding:12px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-save{background:var(--orange);color:#fff;}
+.btn-save:hover{background:var(--orange2);}
+.btn-cancel{background:var(--card2);color:var(--muted2);border:1px solid var(--border2);}
+.btn-cancel:hover{background:rgba(255,255,255,0.04);}
+
+/* Görev/Personel listesi modal */
+.gorev-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2>MG <span>İNŞAAT</span></h2>
+    <p>Yönetici Paneli</p>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-role">🔐 Yönetici</div>
+    <div class="user-name" id="sidebar-username">—</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Genel</div>
+    <div class="nav-item active" onclick="showTab('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showTab('projeler',this)"><span class="nav-icon">🏗️</span> Projeler</div>
+    <div class="nav-item" onclick="showTab('teklifler',this)"><span class="nav-icon">📥</span> Teklifler</div>
+
+    <div class="nav-section-title">Kayıtlar</div>
+    <div class="nav-item" onclick="showTab('personel',this)"><span class="nav-icon">👷</span> Personel</div>
+    <div class="nav-item" onclick="showTab('musteriler',this)"><span class="nav-icon">🏢</span> Müşteriler</div>
+    <div class="nav-item" onclick="showTab('gorevler',this)"><span class="nav-icon">📋</span> Görevler</div>
+    <div class="nav-item" onclick="showTab('stok',this)"><span class="nav-icon">📦</span> Stok</div>
+    <div class="nav-item" onclick="showTab('siparisler',this)"><span class="nav-icon">🧾</span> Siparişler</div>
+    <div class="nav-item" onclick="showTab('santiyeler',this)"><span class="nav-icon">📍</span> Şantiyeler</div>
+    <div class="nav-item" onclick="showTab('malzemeler',this)"><span class="nav-icon">🧱</span> Malzemeler</div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()"><span>🚪</span> Çıkış Yap</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="page-sub" id="page-sub">Genel proje durumu</div>
+    </div>
+    <div class="topbar-right">
+      <div class="badge-date" id="today-date">—</div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🏗️</div><div class="stat-label">Toplam Proje</div><div class="stat-val" id="ds-proje" style="color:var(--orange)">—</div><div class="stat-sub">Aktif ve tamamlanan</div></div>
+      <div class="stat-card"><div class="stat-icon">👷</div><div class="stat-label">Personel</div><div class="stat-val" id="ds-personel" style="color:var(--blue)">—</div><div class="stat-sub">Kayıtlı çalışan</div></div>
+      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-label">Açık Görev</div><div class="stat-val" id="ds-gorev" style="color:var(--yellow)">—</div><div class="stat-sub">Tamamlanmamış</div></div>
+      <div class="stat-card"><div class="stat-icon">📥</div><div class="stat-label">Bekleyen Teklif</div><div class="stat-val" id="ds-teklif" style="color:var(--green)">—</div><div class="stat-sub">İncelenecek</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🏗️ Son Projeler</h3><span class="count" id="ds-proje-count">—</span></div>
+      <table>
+        <thead><tr><th>ID</th><th>Proje</th><th>Müşteri</th><th>Bütçe</th><th>İlerleme</th><th>Durum</th></tr></thead>
+        <tbody id="ds-proje-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Projeler -->
+  <div class="tab-content" id="tab-projeler">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button class="btn-primary" onclick="openProjeForm()">+ Yeni Proje</button>
+    </div>
+    <div class="projects-grid" id="projeler-grid"></div>
+  </div>
+
+  <!-- Teklifler -->
+  <div class="tab-content" id="tab-teklifler">
+    <div class="card">
+      <div class="card-header"><h3>📥 Müşteri Proje Teklifleri</h3><span class="count" id="teklif-count">—</span></div>
+      <table>
+        <thead><tr><th>ID</th><th>Müşteri</th><th>Proje Adı</th><th>Açıklama</th><th>Tahmini Bütçe</th><th>Tarih</th><th>Durum</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="teklifler-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Personel -->
+  <div class="tab-content" id="tab-personel">
+    <div class="card">
+      <div class="card-header">
+        <h3>👷 Personel Listesi</h3>
+        <div class="header-right">
+          <span class="count" id="personel-count">—</span>
+          <button class="btn-primary" onclick="openPersonelForm()">+ Yeni Personel</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Ad Soyad</th><th>Pozisyon</th><th>Maaş</th><th>Telefon</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="personel-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Müşteriler -->
+  <div class="tab-content" id="tab-musteriler">
+    <div class="card">
+      <div class="card-header">
+        <h3>🏢 Müşteri Listesi</h3>
+        <div class="header-right">
+          <span class="count" id="musteri-count">—</span>
+          <button class="btn-primary" onclick="openMusteriForm()">+ Yeni Müşteri</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Firma Adı</th><th>İletişim</th><th>Email</th><th>Adres</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="musteri-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Görevler -->
+  <div class="tab-content" id="tab-gorevler">
+    <div class="card">
+      <div class="card-header">
+        <h3>📋 Tüm Görevler</h3>
+        <div class="header-right">
+          <span class="count" id="gorev-count">—</span>
+          <button class="btn-primary" onclick="openGorevForm()">+ Yeni Görev</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Görev</th><th>Proje</th><th>Personel</th><th>Bitiş</th><th>Öncelik</th><th>Durum</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="gorev-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Stok -->
+  <div class="tab-content" id="tab-stok">
+    <div class="card">
+      <div class="card-header">
+        <h3>📦 Stok Durumu</h3>
+        <div class="header-right">
+          <span class="count" id="stok-count">—</span>
+          <button class="btn-primary" onclick="openStokForm()">+ Yeni Stok</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Malzeme</th><th>Tür</th><th>Birim</th><th>Şantiye</th><th>Miktar</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="stok-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Siparişler -->
+  <div class="tab-content" id="tab-siparisler">
+    <div class="card">
+      <div class="card-header">
+        <h3>🧾 Siparişler</h3>
+        <div class="header-right">
+          <span class="count" id="siparis-count">—</span>
+          <button class="btn-primary" onclick="openSiparisForm()">+ Yeni Sipariş</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Malzeme</th><th>Şantiye</th><th>Tedarikçi</th><th>Miktar</th><th>Tarih</th><th>Durum</th><th style="text-align:right;padding-right:24px">İşlem</th></tr></thead>
+        <tbody id="siparis-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Şantiyeler -->
+  <div class="tab-content" id="tab-santiyeler">
+    <div class="card">
+      <div class="card-header"><h3>📍 Şantiyeler</h3><span class="count" id="santiye-count">—</span></div>
+      <table>
+        <thead><tr><th>ID</th><th>Şantiye Adı</th><th>Proje</th><th>Lokasyon</th><th>Başlama Tarihi</th></tr></thead>
+        <tbody id="santiye-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Malzemeler -->
+  <div class="tab-content" id="tab-malzemeler">
+    <div class="card">
+      <div class="card-header"><h3>🧱 Malzeme Listesi</h3><span class="count" id="malzeme-count">—</span></div>
+      <table>
+        <thead><tr><th>ID</th><th>Malzeme Adı</th><th>Tür</th><th>Birim</th><th>Birim Fiyat</th></tr></thead>
+        <tbody id="malzeme-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button id="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// Oturum kontrolü
+const userData = sessionStorage.getItem('mgUser');
+if (!userData) window.location.href = '/giris';
+const user = JSON.parse(userData);
+if (user.rol !== 'admin') window.location.href = '/giris';
+document.getElementById('sidebar-username').textContent = user.ad;
+
+// Tarih
+const now = new Date();
+document.getElementById('today-date').textContent = now.toLocaleDateString('tr-TR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+const pageTitles = {
+  dashboard:   ['Dashboard',         'Genel proje durumu'],
+  projeler:    ['Projeler',          'Karta tıklayarak detay görüntüleyin'],
+  teklifler:   ['Proje Teklifleri',  'Müşterilerden gelen yeni proje önerileri'],
+  personel:    ['Personel',          'Çalışan listesi ve maaşlar'],
+  musteriler:  ['Müşteriler',        'Müşteri firmaları'],
+  gorevler:    ['Görevler',          'Tüm proje görevleri'],
+  stok:        ['Stok Durumu',       'Şantiye bazlı envanter'],
+  siparisler:  ['Siparişler',        'Tedarikçi ve sipariş takibi'],
+  santiyeler:  ['Şantiyeler',        'Şantiye listesi ve lokasyonlar'],
+  malzemeler:  ['Malzemeler',        'Malzeme listesi ve birim fiyatlar'],
+};
+
+function showTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  const [title, sub] = pageTitles[id];
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-sub').textContent = sub;
+}
+
+function logout() {
+  sessionStorage.removeItem('mgUser');
+  window.location.href = '/giris';
+}
+
+// Modal
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target.id==='modal-overlay') closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// Format
+const TL = n => '₺' + Number(n).toLocaleString('tr-TR');
+const D  = d => d ? d.slice(0,10).split('-').reverse().join('.') : '—';
+
+// ── VERİ YÜKLEME ──
+let _projeler=[], _personeller=[], _musteriler=[], _malzemeler=[], _santiyeler=[], _tedarikciler=[], _teklifler=[];
+
+async function loadAll() {
+  await loadProjeler();
+  await loadPersonel();
+  await loadMusteriler();
+  await loadGorevler();
+  await loadStok();
+  await loadSiparisler();
+  await loadSantiyeler();
+  await loadMalzemeler();
+  await loadTedarikciler();
+  await loadTeklifler();
+  updateDashboard();
+}
+
+async function loadProjeler() {
+  _projeler = await (await fetch('/api/projeler')).json();
+  renderProjeler();
+  renderDashboardProjeler();
+}
+
+function renderProjeler() {
+  const renkler = {'Tamamlandı':['#22c55e','fill-green','status-tamamlandi'],'Devam Ediyor':['#F97316','fill-orange','status-devam'],'Beklemede':['#eab308','fill-yellow','status-beklemede'],'Bekliyor':['#eab308','fill-yellow','status-beklemede']};
+  document.getElementById('projeler-grid').innerHTML = _projeler.map((p,i) => {
+    const r = renkler[p.Durum] || renkler['Devam Ediyor'];
+    return `
+      <div class="project-card">
+        <div onclick="detayProje(${p.ProjeID})">
+          <div class="card-top"><span class="card-num">${String(i+1).padStart(2,'0')}</span><span class="status-badge ${r[2]}">${p.Durum}</span></div>
+          <div class="project-name">${p.ProjeAdı}</div>
+          <div class="project-client">Müşteri: ${p.Musteri}</div>
+          <div class="progress-row"><span>İlerleme</span><span>${p.Ilerleme}%</span></div>
+          <div class="progress-bar"><div class="progress-fill ${r[1]}" style="width:${p.Ilerleme}%"></div></div>
+          <div class="card-meta">
+            <div class="meta-col"><div class="meta-label">Bütçe</div><div class="meta-val">${TL(p.Butce/1e6).slice(0,-4)}M</div></div>
+            <div class="meta-col"><div class="meta-label">Bitiş</div><div class="meta-val">${D(p.Bitis)}</div></div>
+            <div class="meta-col"><div class="meta-label">Harcanan</div><div class="meta-val">${TL(p.HarcananTutar/1e6).slice(0,-4)}M</div></div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action" onclick="event.stopPropagation();duzenleProje(${p.ProjeID})">✏️ Düzenle</button>
+          <button class="btn-action danger" onclick="event.stopPropagation();silProje(${p.ProjeID})">🗑️ Sil</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderDashboardProjeler() {
+  document.getElementById('ds-proje').textContent = _projeler.length;
+  document.getElementById('ds-proje-count').textContent = _projeler.length + ' proje';
+  const renkler = {'Tamamlandı':'badge-tamam','Devam Ediyor':'badge-devam','Beklemede':'badge-bekle','Bekliyor':'badge-bekle'};
+  document.getElementById('ds-proje-tbody').innerHTML = _projeler.map(p => `
+    <tr>
+      <td style="color:var(--muted)">${p.ProjeID}</td>
+      <td style="font-weight:600">${p.ProjeAdı}</td>
+      <td style="color:var(--muted2)">${p.Musteri}</td>
+      <td style="font-weight:600">${TL(p.Butce)}</td>
+      <td><div class="tbl-progress"><div class="tbl-bar"><div class="tbl-fill fill-o" style="width:${p.Ilerleme}%"></div></div><span style="font-size:12px">${p.Ilerleme}%</span></div></td>
+      <td><span class="badge ${renkler[p.Durum]||'badge-bekle'}">${p.Durum}</span></td>
+    </tr>`).join('');
+}
+
+async function loadPersonel() {
+  _personeller = await (await fetch('/api/personeller')).json();
+  document.getElementById('personel-count').textContent = _personeller.length + ' personel';
+  document.getElementById('ds-personel').textContent = _personeller.length;
+  document.getElementById('personel-tbody').innerHTML = _personeller.map(p => `
+    <tr>
+      <td style="color:var(--muted)">${p.PersonelID}</td>
+      <td style="font-weight:600">${p.AdSoyad}</td>
+      <td style="color:var(--muted2)">${p.Pozisyon}</td>
+      <td style="color:var(--green);font-weight:700">${TL(p.Maas)}</td>
+      <td style="color:var(--muted2)">${p.Telefon}</td>
+      <td style="text-align:right">
+        <button class="btn-action" onclick="duzenlePersonel(${p.PersonelID})">✏️ Düzenle</button>
+        <button class="btn-action danger" onclick="silPersonel(${p.PersonelID})">🗑️ Sil</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadMusteriler() {
+  _musteriler = await (await fetch('/api/musteriler')).json();
+  document.getElementById('musteri-count').textContent = _musteriler.length + ' müşteri';
+  document.getElementById('musteri-tbody').innerHTML = _musteriler.map(m => `
+    <tr>
+      <td style="color:var(--muted)">${m.MusteriID}</td>
+      <td style="font-weight:600">${m.FirmaAdi}</td>
+      <td style="color:var(--muted2)">${m.Iletisim}</td>
+      <td style="color:var(--muted2)">${m.Email}</td>
+      <td style="color:var(--muted2)">${m.Adres}</td>
+      <td style="text-align:right">
+        <button class="btn-action" onclick="duzenleMusteri(${m.MusteriID})">✏️ Düzenle</button>
+        <button class="btn-action danger" onclick="silMusteri(${m.MusteriID})">🗑️ Sil</button>
+      </td>
+    </tr>`).join('');
+}
+
+let _gorevler = [];
+async function loadGorevler() {
+  _gorevler = await (await fetch('/api/gorevler')).json();
+  const acik = _gorevler.filter(g => g.Durum !== 'Tamamlandı').length;
+  document.getElementById('ds-gorev').textContent = acik;
+  document.getElementById('gorev-count').textContent = _gorevler.length + ' görev';
+  const renkler = {'Tamamlandı':'badge-tamam','Devam Ediyor':'badge-devam','Bekliyor':'badge-bekle'};
+  document.getElementById('gorev-tbody').innerHTML = _gorevler.map(g => `
+    <tr>
+      <td style="color:var(--muted)">${g.GorevID}</td>
+      <td style="font-weight:600">${g.GorevAdi}</td>
+      <td style="color:var(--muted2)">${g.Proje}</td>
+      <td style="color:var(--muted2)">${g.Personel}</td>
+      <td style="color:var(--muted2)">${D(g.Bitis)}</td>
+      <td style="color:var(--muted2)">${g.Oncelik}</td>
+      <td><span class="badge ${renkler[g.Durum]||'badge-bekle'}">${g.Durum}</span></td>
+      <td style="text-align:right">
+        <button class="btn-action" onclick="duzenleGorev(${g.GorevID})">✏️ Düzenle</button>
+        <button class="btn-action danger" onclick="silGorev(${g.GorevID})">🗑️ Sil</button>
+      </td>
+    </tr>`).join('');
+}
+
+let _stok = [];
+async function loadStok() {
+  _stok = await (await fetch('/api/stok')).json();
+  document.getElementById('stok-count').textContent = _stok.length + ' kayıt';
+  document.getElementById('stok-tbody').innerHTML = _stok.map(s => `
+    <tr>
+      <td style="color:var(--muted)">${s.StokID}</td>
+      <td style="font-weight:600">${s.Malzeme}</td>
+      <td style="color:var(--muted2)">${s.Tur}</td>
+      <td style="color:var(--muted2)">${s.Birim}</td>
+      <td style="color:var(--muted2)">${s.Santiye}</td>
+      <td style="color:var(--orange);font-weight:700">${s.Miktar.toLocaleString('tr-TR')}</td>
+      <td style="text-align:right">
+        <button class="btn-action" onclick="duzenleStok(${s.StokID},${s.Miktar})">✏️ Düzenle</button>
+        <button class="btn-action danger" onclick="silStok(${s.StokID})">🗑️ Sil</button>
+      </td>
+    </tr>`).join('');
+}
+
+let _siparisler = [];
+async function loadSiparisler() {
+  _siparisler = await (await fetch('/api/siparisler')).json();
+  document.getElementById('siparis-count').textContent = _siparisler.length + ' sipariş';
+  const renkler = {'Teslim Edildi':'badge-tamam','Yolda':'badge-devam','Bekliyor':'badge-bekle'};
+  document.getElementById('siparis-tbody').innerHTML = _siparisler.map(s => `
+    <tr>
+      <td style="color:var(--muted)">${s.SiparisID}</td>
+      <td style="font-weight:600">${s.Malzeme}</td>
+      <td style="color:var(--muted2)">${s.Santiye}</td>
+      <td style="color:var(--muted2)">${s.Tedarikci}</td>
+      <td>${s.Miktar}</td>
+      <td style="color:var(--muted2)">${D(s.Tarih)}</td>
+      <td><span class="badge ${renkler[s.Durum]||'badge-bekle'}">${s.Durum}</span></td>
+      <td style="text-align:right">
+        <button class="btn-action" onclick="duzenleSiparis(${s.SiparisID},'${s.Durum}')">✏️ Düzenle</button>
+        <button class="btn-action danger" onclick="silSiparis(${s.SiparisID})">🗑️ Sil</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadSantiyeler() {
+  _santiyeler = await (await fetch('/api/santiyeler')).json();
+  document.getElementById('santiye-count').textContent = _santiyeler.length + ' şantiye';
+  document.getElementById('santiye-tbody').innerHTML = _santiyeler.map(s => `
+    <tr>
+      <td style="color:var(--muted)">${s.SantiyeID}</td>
+      <td style="font-weight:600">${s.SantiyeAdi}</td>
+      <td style="color:var(--muted2)">${s.Proje}</td>
+      <td style="color:var(--muted2)">${s.Lokasyon}</td>
+      <td style="color:var(--muted2)">${D(s.BaslamaTarihi)}</td>
+    </tr>`).join('');
+}
+
+async function loadMalzemeler() {
+  _malzemeler = await (await fetch('/api/malzemeler')).json();
+  document.getElementById('malzeme-count').textContent = _malzemeler.length + ' malzeme';
+  document.getElementById('malzeme-tbody').innerHTML = _malzemeler.map(m => `
+    <tr>
+      <td style="color:var(--muted)">${m.MalzemeID}</td>
+      <td style="font-weight:600">${m.MalzemeAdi}</td>
+      <td style="color:var(--muted2)">${m.MalzemeTuru}</td>
+      <td style="color:var(--muted2)">${m.Birim}</td>
+      <td style="color:var(--green);font-weight:700">${TL(m.BirimFiyat)}</td>
+    </tr>`).join('');
+}
+
+async function loadTedarikciler() {
+  _tedarikciler = await (await fetch('/api/tedarikciler')).json();
+}
+
+async function loadTeklifler() {
+  _teklifler = await (await fetch('/api/teklifler')).json();
+  const bekleyen = _teklifler.filter(t => t.Durum === 'Beklemede').length;
+  document.getElementById('ds-teklif').textContent = bekleyen;
+  document.getElementById('teklif-count').textContent = _teklifler.length + ' teklif';
+  const renkler = {'Beklemede':'badge-bekle','Onaylandı':'badge-tamam','Reddedildi':'badge-red'};
+  document.getElementById('teklifler-tbody').innerHTML = _teklifler.length ? _teklifler.map(t => `
+    <tr>
+      <td style="color:var(--muted)">${t.TeklifID}</td>
+      <td style="font-weight:600">${t.FirmaAdi}</td>
+      <td style="color:var(--muted2)">${t.ProjeAdi}</td>
+      <td style="color:var(--muted);font-size:12px">${t.Aciklama.substring(0,60)}${t.Aciklama.length>60?'...':''}</td>
+      <td style="color:var(--green);font-weight:700">${TL(t.TahminiButce)}</td>
+      <td style="color:var(--muted2)">${D(t.Tarih)}</td>
+      <td><span class="badge ${renkler[t.Durum]||'badge-bekle'}">${t.Durum}</span></td>
+      <td style="text-align:right">
+        ${t.Durum === 'Beklemede' ? `
+          <button class="btn-action success" onclick="onaylaTeklif(${t.TeklifID})">✅ Onayla</button>
+          <button class="btn-action danger" onclick="reddetTeklif(${t.TeklifID})">❌ Reddet</button>
+        ` : ''}
+        <button class="btn-action danger" onclick="silTeklif(${t.TeklifID})">🗑️</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">Henüz teklif yok</td></tr>';
+}
+
+function updateDashboard() {}
+
+// ═════════════════════════════════════════════
+// PROJE CRUD
+// ═════════════════════════════════════════════
+function openProjeForm(proje) {
+  const isEdit = !!proje;
+  const musteriOpts = _musteriler.map(m => `<option value="${m.MusteriID}" ${proje && proje.MusteriID===m.MusteriID?'selected':''}>${m.FirmaAdi}</option>`).join('');
+  openModal(`
+    <div class="form-title">${isEdit?'✏️ Proje Düzenle':'➕ Yeni Proje Ekle'}</div>
+    <div class="form-sub">${isEdit?'Proje bilgilerini güncelleyin':'Yeni proje bilgilerini girin'}</div>
+    <div class="form-row"><label>Proje Adı</label><input id="f-proje-ad" value="${proje?proje.ProjeAdı:''}" placeholder="Örn: Kuzey Rezidans"></div>
+    <div class="form-row"><label>Müşteri</label><select id="f-proje-musteri" ${isEdit?'disabled':''}>${musteriOpts}</select></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Başlangıç</label><input type="date" id="f-proje-baslangic" value="${proje?proje.Baslangic.slice(0,10):''}" ${isEdit?'disabled':''}></div>
+      <div class="form-row"><label>Bitiş</label><input type="date" id="f-proje-bitis" value="${proje?proje.Bitis.slice(0,10):''}" ${isEdit?'disabled':''}></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Bütçe (₺)</label><input type="number" id="f-proje-butce" value="${proje?proje.Butce:''}"></div>
+      <div class="form-row"><label>Harcanan (₺)</label><input type="number" id="f-proje-harcanan" value="${proje?proje.HarcananTutar:0}"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>İlerleme (%)</label><input type="number" id="f-proje-ilerleme" min="0" max="100" value="${proje?proje.Ilerleme:0}"></div>
+      <div class="form-row"><label>Durum</label><select id="f-proje-durum">
+        <option ${proje&&proje.Durum==='Devam Ediyor'?'selected':''}>Devam Ediyor</option>
+        <option ${proje&&proje.Durum==='Beklemede'?'selected':''}>Beklemede</option>
+        <option ${proje&&proje.Durum==='Tamamlandı'?'selected':''}>Tamamlandı</option>
+      </select></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetProje(${isEdit?proje.ProjeID:'null'})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetProje(id) {
+  const data = {
+    ProjeAdı:      document.getElementById('f-proje-ad').value,
+    MusteriID:     parseInt(document.getElementById('f-proje-musteri').value),
+    Baslangic:     document.getElementById('f-proje-baslangic').value,
+    Bitis:         document.getElementById('f-proje-bitis').value,
+    Butce:         parseFloat(document.getElementById('f-proje-butce').value),
+    HarcananTutar: parseFloat(document.getElementById('f-proje-harcanan').value),
+    Ilerleme:      parseInt(document.getElementById('f-proje-ilerleme').value),
+    Durum:         document.getElementById('f-proje-durum').value
+  };
+  if (!data.ProjeAdı || !data.Butce) { alert('Lütfen tüm alanları doldurun'); return; }
+  const url = id ? `/api/projeler/${id}` : '/api/projeler';
+  const method = id ? 'PUT' : 'POST';
+  await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  closeModal();
+  loadProjeler();
+}
+
+function duzenleProje(id) {
+  const p = _projeler.find(x => x.ProjeID === id);
+  openProjeForm(p);
+}
+
+async function silProje(id) {
+  if (!confirm('Bu projeyi silmek istediğinizden emin misiniz? Bağlı tüm görev, şantiye, stok ve sipariş kayıtları da silinecek!')) return;
+  await fetch(`/api/projeler/${id}`, { method: 'DELETE' });
+  loadAll();
+}
+
+function detayProje(id) {
+  const p = _projeler.find(x => x.ProjeID === id);
+  const gorevler = _gorevler.filter(g => g.ProjeID === id);
+  const renkler = {'Tamamlandı':['#22c55e','✅'],'Devam Ediyor':['#F97316','🔄'],'Bekliyor':['#64748b','⏳']};
+  const görevlerHTML = gorevler.length ? gorevler.map(g => {
+    const r = renkler[g.Durum] || renkler['Bekliyor'];
+    return `<div class="gorev-item">
+      <div><div style="font-size:13px;font-weight:600">${g.GorevAdi}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">👤 ${g.Personel}</div></div>
+      <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:${r[0]}18;color:${r[0]};border:1px solid ${r[0]}40">${r[1]} ${g.Durum}</span>
+    </div>`;
+  }).join('') : '<p style="color:var(--muted);font-size:13px">Görev yok</p>';
+
+  openModal(`
+    <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:10px;">${p.Durum}</div>
+    <h2 style="font-family:'Space Grotesk';font-size:22px;font-weight:800;margin-bottom:4px">${p.ProjeAdı}</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:22px">👤 ${p.Musteri}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px">
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Toplam Bütçe</div>
+        <div style="font-size:16px;font-weight:700">${TL(p.Butce)}</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Harcanan</div>
+        <div style="font-size:16px;font-weight:700;color:var(--orange)">${TL(p.HarcananTutar)}</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px"><span>İlerleme</span><span style="color:var(--orange);font-weight:700">${p.Ilerleme}%</span></div>
+    <div style="height:6px;background:var(--border2);border-radius:6px;overflow:hidden;margin-bottom:24px"><div style="height:100%;width:${p.Ilerleme}%;background:var(--orange);border-radius:6px"></div></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">📋 GÖREVLER (${gorevler.length})</div>
+    ${görevlerHTML}
+  `);
+}
+
+// ═════════════════════════════════════════════
+// PERSONEL CRUD
+// ═════════════════════════════════════════════
+function openPersonelForm(p) {
+  const isEdit = !!p;
+  openModal(`
+    <div class="form-title">${isEdit?'✏️ Personel Düzenle':'➕ Yeni Personel'}</div>
+    <div class="form-sub">${isEdit?'Personel bilgilerini güncelleyin':'Yeni personel bilgilerini girin'}</div>
+    <div class="form-row"><label>Ad Soyad</label><input id="f-pe-ad" value="${p?p.AdSoyad:''}"></div>
+    <div class="form-row"><label>Pozisyon</label><input id="f-pe-pozisyon" value="${p?p.Pozisyon:''}" placeholder="Örn: Saha Mühendisi"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Maaş (₺)</label><input type="number" id="f-pe-maas" value="${p?p.Maas:''}"></div>
+      <div class="form-row"><label>Telefon</label><input id="f-pe-tel" value="${p?p.Telefon:''}" placeholder="0532-xxx-xxxx"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetPersonel(${isEdit?p.PersonelID:'null'})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetPersonel(id) {
+  const data = {
+    AdSoyad:  document.getElementById('f-pe-ad').value,
+    Pozisyon: document.getElementById('f-pe-pozisyon').value,
+    Maas:     parseFloat(document.getElementById('f-pe-maas').value),
+    Telefon:  document.getElementById('f-pe-tel').value
+  };
+  if (!data.AdSoyad || !data.Maas) { alert('Lütfen tüm alanları doldurun'); return; }
+  const url = id ? `/api/personeller/${id}` : '/api/personeller';
+  await fetch(url, { method: id?'PUT':'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadPersonel();
+}
+
+function duzenlePersonel(id) {
+  openPersonelForm(_personeller.find(p => p.PersonelID === id));
+}
+
+async function silPersonel(id) {
+  if (!confirm('Bu personeli silmek istediğinize emin misiniz? Bağlı görevler ve hesap da silinecek!')) return;
+  await fetch(`/api/personeller/${id}`, { method:'DELETE' });
+  loadAll();
+}
+
+// ═════════════════════════════════════════════
+// MÜŞTERİ CRUD
+// ═════════════════════════════════════════════
+function openMusteriForm(m) {
+  const isEdit = !!m;
+  openModal(`
+    <div class="form-title">${isEdit?'✏️ Müşteri Düzenle':'➕ Yeni Müşteri'}</div>
+    <div class="form-sub">${isEdit?'Müşteri bilgilerini güncelleyin':'Yeni müşteri firma bilgilerini girin'}</div>
+    <div class="form-row"><label>Firma Adı</label><input id="f-mu-ad" value="${m?m.FirmaAdi:''}"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>İletişim</label><input id="f-mu-iletisim" value="${m?m.Iletisim:''}"></div>
+      <div class="form-row"><label>Email</label><input id="f-mu-email" value="${m?m.Email:''}"></div>
+    </div>
+    <div class="form-row"><label>Adres</label><input id="f-mu-adres" value="${m?m.Adres:''}"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetMusteri(${isEdit?m.MusteriID:'null'})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetMusteri(id) {
+  const data = {
+    FirmaAdi: document.getElementById('f-mu-ad').value,
+    Iletisim: document.getElementById('f-mu-iletisim').value,
+    Email:    document.getElementById('f-mu-email').value,
+    Adres:    document.getElementById('f-mu-adres').value
+  };
+  if (!data.FirmaAdi) { alert('Firma adı zorunlu'); return; }
+  const url = id ? `/api/musteriler/${id}` : '/api/musteriler';
+  await fetch(url, { method: id?'PUT':'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadMusteriler();
+}
+
+function duzenleMusteri(id) {
+  openMusteriForm(_musteriler.find(m => m.MusteriID === id));
+}
+
+async function silMusteri(id) {
+  if (!confirm('Bu müşteriyi silmek istediğinize emin misiniz?')) return;
+  const res = await (await fetch(`/api/musteriler/${id}`, { method:'DELETE' })).json();
+  if (!res.basarili) alert('Hata: ' + (res.hata || 'Silinemedi'));
+  loadAll();
+}
+
+// ═════════════════════════════════════════════
+// GÖREV CRUD
+// ═════════════════════════════════════════════
+function openGorevForm() {
+  const projeOpts = _projeler.map(p => `<option value="${p.ProjeID}">${p.ProjeAdı}</option>`).join('');
+  const personelOpts = _personeller.map(p => `<option value="${p.PersonelID}">${p.AdSoyad}</option>`).join('');
+  openModal(`
+    <div class="form-title">➕ Yeni Görev</div>
+    <div class="form-sub">Projeye yeni görev atayın</div>
+    <div class="form-row"><label>Görev Adı</label><input id="f-g-ad" placeholder="Örn: Temel Beton Dökümü"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Proje</label><select id="f-g-proje">${projeOpts}</select></div>
+      <div class="form-row"><label>Personel</label><select id="f-g-personel">${personelOpts}</select></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Başlangıç</label><input type="date" id="f-g-baslangic"></div>
+      <div class="form-row"><label>Bitiş</label><input type="date" id="f-g-bitis"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Öncelik</label><select id="f-g-oncelik"><option>Düşük</option><option selected>Normal</option><option>Yüksek</option></select></div>
+      <div class="form-row"><label>Durum</label><select id="f-g-durum"><option selected>Bekliyor</option><option>Devam Ediyor</option><option>Tamamlandı</option></select></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetGorev()">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetGorev() {
+  const data = {
+    GorevAdi:   document.getElementById('f-g-ad').value,
+    ProjeID:    parseInt(document.getElementById('f-g-proje').value),
+    PersonelID: parseInt(document.getElementById('f-g-personel').value),
+    Baslangic:  document.getElementById('f-g-baslangic').value,
+    Bitis:      document.getElementById('f-g-bitis').value,
+    Oncelik:    document.getElementById('f-g-oncelik').value,
+    Durum:      document.getElementById('f-g-durum').value
+  };
+  if (!data.GorevAdi || !data.Baslangic) { alert('Lütfen alanları doldurun'); return; }
+  await fetch('/api/gorevler', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadGorevler();
+}
+
+function duzenleGorev(id) {
+  const g = _gorevler.find(x => x.GorevID === id);
+  openModal(`
+    <div class="form-title">✏️ Görev Güncelle</div>
+    <div class="form-sub">${g.GorevAdi}</div>
+    <div class="form-grid">
+      <div class="form-row"><label>Öncelik</label><select id="f-g-oncelik">
+        <option ${g.Oncelik==='Düşük'?'selected':''}>Düşük</option>
+        <option ${g.Oncelik==='Normal'?'selected':''}>Normal</option>
+        <option ${g.Oncelik==='Yüksek'?'selected':''}>Yüksek</option>
+      </select></div>
+      <div class="form-row"><label>Durum</label><select id="f-g-durum">
+        <option ${g.Durum==='Bekliyor'?'selected':''}>Bekliyor</option>
+        <option ${g.Durum==='Devam Ediyor'?'selected':''}>Devam Ediyor</option>
+        <option ${g.Durum==='Tamamlandı'?'selected':''}>Tamamlandı</option>
+      </select></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetGorevGuncelle(${id})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetGorevGuncelle(id) {
+  const data = {
+    Oncelik: document.getElementById('f-g-oncelik').value,
+    Durum:   document.getElementById('f-g-durum').value
+  };
+  await fetch(`/api/gorevler/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadGorevler();
+}
+
+async function silGorev(id) {
+  if (!confirm('Görevi silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/gorevler/${id}`, { method:'DELETE' });
+  loadGorevler();
+}
+
+// ═════════════════════════════════════════════
+// STOK CRUD
+// ═════════════════════════════════════════════
+function openStokForm() {
+  const malzemeOpts = _malzemeler.map(m => `<option value="${m.MalzemeID}">${m.MalzemeAdi}</option>`).join('');
+  const santiyeOpts = _santiyeler.map(s => `<option value="${s.SantiyeID}">${s.SantiyeAdi}</option>`).join('');
+  openModal(`
+    <div class="form-title">➕ Yeni Stok Girişi</div>
+    <div class="form-sub">Şantiyeye malzeme ekleyin</div>
+    <div class="form-row"><label>Malzeme</label><select id="f-s-malzeme">${malzemeOpts}</select></div>
+    <div class="form-row"><label>Şantiye</label><select id="f-s-santiye">${santiyeOpts}</select></div>
+    <div class="form-row"><label>Miktar</label><input type="number" id="f-s-miktar"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetStok()">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetStok() {
+  const data = {
+    MalzemeID: parseInt(document.getElementById('f-s-malzeme').value),
+    SantiyeID: parseInt(document.getElementById('f-s-santiye').value),
+    Miktar:    parseFloat(document.getElementById('f-s-miktar').value)
+  };
+  if (!data.Miktar) { alert('Miktar girin'); return; }
+  await fetch('/api/stok', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadStok();
+}
+
+function duzenleStok(id, miktar) {
+  openModal(`
+    <div class="form-title">✏️ Stok Miktarı Güncelle</div>
+    <div class="form-sub">Yeni miktar değerini girin</div>
+    <div class="form-row"><label>Miktar</label><input type="number" id="f-s-miktar" value="${miktar}"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetStokGuncelle(${id})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetStokGuncelle(id) {
+  const data = { Miktar: parseFloat(document.getElementById('f-s-miktar').value) };
+  await fetch(`/api/stok/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadStok();
+}
+
+async function silStok(id) {
+  if (!confirm('Stok kaydını silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/stok/${id}`, { method:'DELETE' });
+  loadStok();
+}
+
+// ═════════════════════════════════════════════
+// SİPARİŞ CRUD
+// ═════════════════════════════════════════════
+function openSiparisForm() {
+  const malzemeOpts = _malzemeler.map(m => `<option value="${m.MalzemeID}">${m.MalzemeAdi}</option>`).join('');
+  const santiyeOpts = _santiyeler.map(s => `<option value="${s.SantiyeID}">${s.SantiyeAdi}</option>`).join('');
+  const tedarikciOpts = _tedarikciler.map(t => `<option value="${t.TedarikciID}">${t.FirmaAdi}</option>`).join('');
+  openModal(`
+    <div class="form-title">➕ Yeni Sipariş</div>
+    <div class="form-sub">Malzeme siparişi oluşturun</div>
+    <div class="form-row"><label>Malzeme</label><select id="f-si-malzeme">${malzemeOpts}</select></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Şantiye</label><select id="f-si-santiye">${santiyeOpts}</select></div>
+      <div class="form-row"><label>Tedarikçi</label><select id="f-si-tedarikci">${tedarikciOpts}</select></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Miktar</label><input type="number" id="f-si-miktar"></div>
+      <div class="form-row"><label>Tarih</label><input type="date" id="f-si-tarih" value="${new Date().toISOString().slice(0,10)}"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetSiparis()">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetSiparis() {
+  const data = {
+    MalzemeID:   parseInt(document.getElementById('f-si-malzeme').value),
+    SantiyeID:   parseInt(document.getElementById('f-si-santiye').value),
+    TedarikciID: parseInt(document.getElementById('f-si-tedarikci').value),
+    Miktar:      parseFloat(document.getElementById('f-si-miktar').value),
+    Tarih:       document.getElementById('f-si-tarih').value,
+    Durum:       'Bekliyor'
+  };
+  if (!data.Miktar) { alert('Miktar girin'); return; }
+  await fetch('/api/siparisler', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadSiparisler();
+}
+
+function duzenleSiparis(id, durum) {
+  openModal(`
+    <div class="form-title">✏️ Sipariş Durumu Güncelle</div>
+    <div class="form-row"><label>Durum</label><select id="f-si-durum">
+      <option ${durum==='Bekliyor'?'selected':''}>Bekliyor</option>
+      <option ${durum==='Yolda'?'selected':''}>Yolda</option>
+      <option ${durum==='Teslim Edildi'?'selected':''}>Teslim Edildi</option>
+    </select></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn-save" onclick="kaydetSiparisGuncelle(${id})">💾 Kaydet</button>
+    </div>`);
+}
+
+async function kaydetSiparisGuncelle(id) {
+  const data = { Durum: document.getElementById('f-si-durum').value };
+  await fetch(`/api/siparisler/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  closeModal();
+  loadSiparisler();
+}
+
+async function silSiparis(id) {
+  if (!confirm('Siparişi silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/siparisler/${id}`, { method:'DELETE' });
+  loadSiparisler();
+}
+
+// ═════════════════════════════════════════════
+// TEKLİF YÖNETİMİ
+// ═════════════════════════════════════════════
+async function onaylaTeklif(id) {
+  if (!confirm('Bu teklifi onaylamak istediğinize emin misiniz?')) return;
+  await fetch(`/api/teklifler/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({Durum:'Onaylandı'}) });
+  loadTeklifler();
+}
+
+async function reddetTeklif(id) {
+  if (!confirm('Bu teklifi reddetmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/teklifler/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({Durum:'Reddedildi'}) });
+  loadTeklifler();
+}
+
+async function silTeklif(id) {
+  if (!confirm('Bu teklifi silmek istediğinize emin misiniz?')) return;
+  await fetch(`/api/teklifler/${id}`, { method:'DELETE' });
+  loadTeklifler();
+}
+
+// Sayfa yüklenince
+loadAll();
+</script>
+</body>
+</html>
